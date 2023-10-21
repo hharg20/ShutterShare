@@ -2,6 +2,7 @@ package ca.unb.mobiledev.shuttershare
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -17,11 +18,15 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import ca.unb.mobiledev.shuttershare.databinding.ActivityMainBinding
+import com.google.firebase.Firebase
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
+    private lateinit var database: DatabaseReference
     private lateinit var cameraController: LifecycleCameraController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +44,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
+
+//        viewBinding.loginScreenButton.setOnClickListener {
+//            val intent = Intent(this, LoginScreen::class.java)
+//            startActivity(intent)
+//        }
+
+        //Firebase Test code
+        Toast.makeText(this, "Firebase Connection Successful", Toast.LENGTH_SHORT).show()
+
+        val firstName = "John"
+        val lastName = "Smith"
+        val age = "33"
+        val userName = "jsmith"
+
+        database = FirebaseDatabase.getInstance().getReference("Test")
+        val test = Test(firstName, lastName, age, userName)
+        database.child(userName).setValue(test).addOnSuccessListener {
+            Toast.makeText(this, "Successfully Saved", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to Save", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun startCamera() {
