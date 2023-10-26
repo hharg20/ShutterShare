@@ -22,14 +22,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-<!--    <Button-->
-<!--        android:id="@+id/login_screen_button"-->
-<!--        android:layout_width="110dp"-->
-<!--        android:layout_height="50dp"-->
-<!--        android:elevation="100dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        />-->
+    <Button
+        android:id="@+id/login_screen_button"
+        android:layout_width="110dp"
+        android:layout_height="50dp"
+        android:elevation="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
