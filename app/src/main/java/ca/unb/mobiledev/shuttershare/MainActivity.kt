@@ -16,7 +16,9 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import ca.unb.mobiledev.shuttershare.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -30,98 +32,40 @@ class MainActivity : AppCompatActivity() {
         //setContentView(R.layout.activity_main)
         setContentView(viewBinding.root)
 
+        //Possibly add this line here
+//        replaceFragment(Camera())
+
         // Checking if permissions were granted in a previous session
-        if(!hasPermissions(baseContext)) {
-            // request camera-related permissions
-            activityResultLauncher.launch(REQUIRED_PERMISSIONS)
-        } else {
-            startCamera()
-        }
+//        if(!hasPermissions(baseContext)) {
+//            // request camera-related permissions
+//            activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+//        } else {
+//            startCamera()
+//        }
 
-        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
-    }
+        //viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
 
-    private fun startCamera() {
-        val previewView: PreviewView = viewBinding.viewFinder
-        cameraController = LifecycleCameraController(baseContext)
-        cameraController.bindToLifecycle(this)
-        cameraController.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA // sets the selfie camera the default
-        previewView.controller = cameraController
-    }
+        //Navigation
+        replaceFragment(Camera())
+        //val myBottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        viewBinding.bottomNavigationView.setOnItemSelectedListener {
+            Log.d("NAVBAR", "Nav item was selected")
+            when(it.itemId){
+                R.id.camera -> replaceFragment(Camera())
+                R.id.photoAlbum -> replaceFragment(PhotoAlbums())
 
-    private fun takePhoto() {
-        // Create time stamped name and MediaStore entry
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.CANADA)
-            .format(System.currentTimeMillis())
+                else ->{
 
-        // Setting up the content values for MediaStore to save the photos to the device
-        // MAY WANT TO CHANGE THIS LATER ON TO THE CLOUD STUFF...?
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/ShutterShare-Image")
-            }
-        }
-
-        // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues)
-            .build()
-
-        // Set up image capture listener, which is triggered after photo has been taken
-        // MAY WANT TO OVERRIDE SOME OTHER FUNCTIONS FOR OUR PURPOSES
-        cameraController.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                }
-
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val msg = "Photo capture succeeded: ${output.savedUri}"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
-                    Log.d(TAG, msg)
                 }
             }
-
-        )
+            true
+        }
     }
 
-    private val activityResultLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
-        { permissions ->
-            // Handle Permission granted/rejected
-            var permissionGranted = true
-
-            // check if all required permissions were granted
-            permissions.entries.forEach {
-                if (it.key in REQUIRED_PERMISSIONS && it.value == false)
-                    permissionGranted = false
-            }
-            if(!permissionGranted) {
-                Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
-            } else {
-                startCamera()
-            }
-        }
-
-    companion object {
-        private const val TAG = "ShutterShare"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS" // may change in the future...
-        private val REQUIRED_PERMISSIONS =
-            mutableListOf (
-                android.Manifest.permission.CAMERA
-            ).apply {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                }
-            }.toTypedArray()
-        fun hasPermissions(context: Context) = REQUIRED_PERMISSIONS.all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-        }
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.frameLayout, fragment)
+        fragmentTransaction.commit()
     }
 }
