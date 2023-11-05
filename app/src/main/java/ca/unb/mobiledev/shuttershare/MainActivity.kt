@@ -23,7 +23,9 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import ca.unb.mobiledev.shuttershare.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -50,6 +52,34 @@ class MainActivity : AppCompatActivity() {
 
         //setContentView(R.layout.activity_main)
         setContentView(viewBinding.root)
+
+        //Possibly add this line here
+//        replaceFragment(Camera())
+
+        // Checking if permissions were granted in a previous session
+//        if(!hasPermissions(baseContext)) {
+//            // request camera-related permissions
+//            activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+//        } else {
+//            startCamera()
+//        }
+
+        //viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
+
+        //Navigation
+        replaceFragment(Camera())
+        //val myBottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        viewBinding.bottomNavigationView.setOnItemSelectedListener {
+            Log.d("NAVBAR", "Nav item was selected")
+            when(it.itemId){
+                R.id.camera -> replaceFragment(Camera())
+                R.id.photoAlbum -> replaceFragment(PhotoAlbums())
+
+                else ->{
+
+                }
+            }
+            true
 
         // Checking if permissions were granted in a previous session
         if(!hasPermissions(baseContext)) {
@@ -183,20 +213,12 @@ class MainActivity : AppCompatActivity() {
                 startCamera()
             }
         }
+    }
 
-    companion object {
-        private const val TAG = "ShutterShare"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS" // may change in the future...
-        private val REQUIRED_PERMISSIONS =
-            mutableListOf (
-                android.Manifest.permission.CAMERA
-            ).apply {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                }
-            }.toTypedArray()
-        fun hasPermissions(context: Context) = REQUIRED_PERMISSIONS.all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-        }
+    private fun replaceFragment(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.frameLayout, fragment)
+        fragmentTransaction.commit()
     }
 }
